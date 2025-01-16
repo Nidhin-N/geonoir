@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="cafe.cis.strath.ac.uk" id="3c82ac82-9e0e-48d2-8bac-cfe8d95e2811" port="22" customName="devweb2024ssh" nameFormat="CUSTOM" username="wdb21134" useOpenSSHConfig="true">
+        <option name="customName" value="devweb2024ssh" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>
