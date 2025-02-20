@@ -51,12 +51,12 @@ export default function Page() {
                 <h3 className="text-2xl font-semibold">Clue</h3>
                 <p className="text-lg font-mono">{clue || 'Click on a street to investigate and find clues.'}</p>
             </div>
-            <button
-                onClick={() => window.loadGame(true)}
-                className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700"
-            >
-                Restart Game
-            </button>
+            {/*<button*/}
+            {/*    onClick={() => window.loadGame(true)}*/}
+            {/*    className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700"*/}
+            {/*>*/}
+            {/*    Restart Game*/}
+            {/*</button>*/}
         </div>
     );
 }
