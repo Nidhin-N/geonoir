@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchRandomCity, fetchCityStreets } from "../utils/overpass";
+import { getCity } from "../utils/overpass";
 
 export default function CitySelector({ onCitySelected }: { onCitySelected: (city: any) => void }) {
     const [currentCity, setCurrentCity] = useState<{ name: string; lat: number; lon: number } | null>(null);
@@ -7,7 +7,7 @@ export default function CitySelector({ onCitySelected }: { onCitySelected: (city
 
     useEffect(() => {
         async function loadCity() {
-            const city = await fetchRandomCity();
+            const city = await getCity();
             if (city) {
                 setCurrentCity(city);
                 onCitySelected(city);
