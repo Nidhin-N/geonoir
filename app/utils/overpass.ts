@@ -1,13 +1,14 @@
 // Function to fetch a random major city from OpenStreetMap
 export const getCity = async (forceNew = false) => {
 
-    const cacheKey = "cachedCity";
-    const cachedCity = localStorage.getItem(cacheKey);
 
-    if (cachedCity && !forceNew) {
-        console.log("Using cached city.");
-        return JSON.parse(cachedCity);
-    }
+    // const cacheKey = "cachedCity";
+    // const cachedCity = localStorage.getItem(cacheKey);
+    //
+    // if (cachedCity && !forceNew) {
+    //     console.log("Using cached city.");
+    //     return JSON.parse(cachedCity);
+    // }
 
     const overpassQuery = `
     [out:json];
@@ -31,7 +32,7 @@ export const getCity = async (forceNew = false) => {
 
         const cityData = {name, lat, lon}
 
-        localStorage.setItem(cacheKey, JSON.stringify(cityData));
+        // localStorage.setItem(cacheKey, JSON.stringify(cityData));
         return cityData;
     }
     return null;
@@ -42,10 +43,10 @@ export const getStreets = async (cityLat: number, cityLon: number, forceNew = fa
     const cacheKey = `streets_${cityLat}_${cityLon}`;
     const cachedData = localStorage.getItem(cacheKey);
 
-    if (cachedData && !forceNew) {
-        console.log("Using cached streets data.");
-        return JSON.parse(cachedData);
-    }
+    // if (cachedData && !forceNew) {
+    //     console.log("Using cached streets data.");
+    //     return JSON.parse(cachedData);
+    // }
 
     const overpassQuery = `
     [out:json];
@@ -74,7 +75,7 @@ export const getStreets = async (cityLat: number, cityLon: number, forceNew = fa
             const finalLoc = streets[5];
 
             const gameData = {clues, finalLoc, allStreets: streets };
-            localStorage.setItem(cacheKey, JSON.stringify(gameData));
+            // localStorage.setItem(cacheKey, JSON.stringify(gameData));
             return gameData;
         } else {
             console.warn("Not enough streets found.");

@@ -1,6 +1,25 @@
 import { useState, useEffect } from "react";
-import {MapContainer, TileLayer, Polygon, LayersControl, Polyline} from "react-leaflet";
-import {getCity, getStreets} from "../utils/overpass";
+import { MapContainer, TileLayer, LayersControl, Polyline } from "react-leaflet";
+import { getCity, getStreets } from "../utils/overpass";
+
+// export async function loadGame(forceNew = false) {
+//     let selectedCity;
+//
+//     if (forceNew) {
+//         selectedCity = await getCity(true); // Fetch new city
+//         localStorage.setItem("cachedCity", JSON.stringify(selectedCity)); // Cache new city
+//     } else {
+//         const cachedCity = localStorage.getItem("cachedCity");
+//         selectedCity = cachedCity ? JSON.parse(cachedCity) : await getCity(true); // Use cached if available
+//     }
+//
+//     if (selectedCity) {
+//         const data = await getStreets(selectedCity.lat, selectedCity.lon, forceNew);
+//         return { city: selectedCity, data };
+//     }
+//
+//     return null;
+// }
 
 export default function MapDisplay({ city }: { city: { lat: number; lon: number } }) {
     const [gameData, setGameData] = useState<{clues: any[]; finalLoc: any; allStreets: any[] } | null>(null);
@@ -8,24 +27,21 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
     const [clue, setClue] = useState<string | null>(null);
     const [foundKiller, setFoundKiller] = useState(false);
 
-    // useEffect(() => {
-    // //     loadGame(forceNew);
-    // // }, [forceNew]);
-    // //
-    async function loadGame(forceNew = false) {
-        const selectedCity = await getCity(forceNew);
-        city = selectedCity;
 
-        if (selectedCity) {
-            const data = await getStreets(selectedCity.lat, selectedCity.lon, forceNew);
-            if (data) {
-                setGameData(data);
+    useEffect(() => {
+        async function loadStreets() {
+            if (city) {
+                const data = await getStreets(city.lat, city.lon);
+                if (data){
+                    setGameData(data);
+                }
             }
         }
-    }
+        loadStreets();
+    }, [city]);
 
 
-    if (!city) {
+    if (!city || !gameData) {
         return <p className="text-center text-lg">Loading game data...</p>;
     }
     // else if (!gameData){
@@ -33,13 +49,15 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
     // }
 
     const handleStreetClick = (street: any) => {
+        console.log(gameData.clues[clueIndex].name);
+        console.log(clueIndex);
         if (!gameData) {
             return;
         }
-        if (clueIndex >= 0 && clueIndex < gameData.clues.length && street.name === gameData.clues[clueIndex - 1].name) {
+        if (clueIndex >= 0 && clueIndex < gameData.clues.length && street.name === gameData.clues[clueIndex].name) {
             setClue(`You found a clue ${clueIndex}! Navigate to ${street.name}`);
             setClueIndex(clueIndex + 1);
-        } else if (clueIndex === gameData.clues.length && street.name === gameData?.finalLoc.name) {
+        } else if (clueIndex === gameData.clues.length && street.name === gameData.finalLoc.name) {
             setClue("You found the killer! Case solved.");
             setFoundKiller(true);
         }
@@ -49,8 +67,8 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
         <div className="relative min-h-screen w-full">
             <div className="relative min-h-screen bg-black text-white">
                 <MapContainer center={[city.lat, city.lon]}
-                              zoom={13}
-                              minZoom={18}
+                              zoom={18}
+                              minZoom={15}
                               style={{height: "500px", width: "100%"}}
                 >
                     {/* TileLayer to display the map using OpenStreetMap tiles */}
@@ -82,13 +100,19 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
                             />
                         </LayersControl.BaseLayer>
                     </LayersControl>
+                    {gameData.allStreets.map((street, index) => (
+                        <Polyline
+                            key={index}
+                            pathOptions={{ color: street.name === gameData.finalLoc.name ? "green" : "gray", weight: 4 }}
+                            positions={street.coordinates}
+                            eventHandlers={{
+                                click: () => handleStreetClick(street),
+                            }}
+                        />
+                    ))}
+
                 </MapContainer>
             </div>
-                <button
-                    onClick={() => loadGame(true)}
-                    className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700">
-                    Restart Game
-                </button>
-            </div>
-            );
-            }
+        </div>
+    );
+}
