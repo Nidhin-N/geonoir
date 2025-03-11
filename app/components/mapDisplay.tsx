@@ -1,28 +1,23 @@
 import { useState, useEffect } from "react";
+import L, { LatLngBoundsExpression } from "leaflet";
 import { MapContainer, TileLayer, LayersControl, Polyline } from "react-leaflet";
-import { getCity, getStreets } from "../utils/overpass";
+import {getLocations } from "../utils/overpass";
 
-// export async function loadGame(forceNew = false) {
-//     let selectedCity;
-//
-//     if (forceNew) {
-//         selectedCity = await getCity(true); // Fetch new city
-//         localStorage.setItem("cachedCity", JSON.stringify(selectedCity)); // Cache new city
-//     } else {
-//         const cachedCity = localStorage.getItem("cachedCity");
-//         selectedCity = cachedCity ? JSON.parse(cachedCity) : await getCity(true); // Use cached if available
-//     }
-//
-//     if (selectedCity) {
-//         const data = await getStreets(selectedCity.lat, selectedCity.lon, forceNew);
-//         return { city: selectedCity, data };
-//     }
-//
-//     return null;
-// }
+function calculateBounds(centerLat: number, centerLon: number, radius: number): LatLngBoundsExpression {
+    // Convert meters to degrees
+    const latOffset = (radius / 6378150) * (180 / Math.PI); //Earth radius in meters
+    const lonOffset = latOffset / Math.cos(centerLat * (Math.PI / 180));
+
+    // Create bounding box
+    return L.latLngBounds(
+        [centerLat - latOffset, centerLon - lonOffset], // Southwest
+        [centerLat + latOffset, centerLon + lonOffset]  // Northeast
+    );
+}
+
 
 export default function MapDisplay({ city }: { city: { lat: number; lon: number } }) {
-    const [gameData, setGameData] = useState<{clues: any[]; finalLoc: any; allStreets: any[] } | null>(null);
+    const [gameData, setGameData] = useState<{clues: any; finalLoc: any; allLocations: any } | null>(null);
     const [clueIndex, setClueIndex] = useState(0);
     const [clue, setClue] = useState<string | null>(null);
     const [foundKiller, setFoundKiller] = useState(false);
@@ -31,9 +26,10 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
     useEffect(() => {
         async function loadStreets() {
             if (city) {
-                const data = await getStreets(city.lat, city.lon);
+                const data = await getLocations(city.lat, city.lon);
                 if (data){
                     setGameData(data);
+                    setClue(`Find ${data.clues[0].name}`);
                 }
             }
         }
@@ -44,9 +40,6 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
     if (!city || !gameData) {
         return <p className="text-center text-lg">Loading game data...</p>;
     }
-    // else if (!gameData){
-    //     return <p className="text-center text-lg">Loading city ...</p>;
-    // }
 
     const handleStreetClick = (street: any) => {
         console.log(gameData.clues[clueIndex].name);
@@ -63,12 +56,15 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
         }
     };
 
+    const bounds = calculateBounds(city.lat, city.lon,1000);
+
     return (
         <div className="relative min-h-screen w-full">
             <div className="relative min-h-screen bg-black text-white">
                 <MapContainer center={[city.lat, city.lon]}
                               zoom={18}
                               minZoom={15}
+                              maxBounds={bounds}
                               style={{height: "500px", width: "100%"}}
                 >
                     {/* TileLayer to display the map using OpenStreetMap tiles */}
@@ -100,17 +96,16 @@ export default function MapDisplay({ city }: { city: { lat: number; lon: number 
                             />
                         </LayersControl.BaseLayer>
                     </LayersControl>
-                    {gameData.allStreets.map((street, index) => (
+                    {gameData.allLocations.map((location, index) => (
                         <Polyline
                             key={index}
-                            pathOptions={{ color: street.name === gameData.finalLoc.name ? "green" : "gray", weight: 4 }}
-                            positions={street.coordinates}
+                            pathOptions={{ color: location.name === gameData.finalLoc.name ? "green" : "gray", weight: 4 }}
+                            positions={location.coordinates}
                             eventHandlers={{
-                                click: () => handleStreetClick(street),
+                                click: () => handleStreetClick(location),
                             }}
                         />
                     ))}
-
                 </MapContainer>
             </div>
         </div>

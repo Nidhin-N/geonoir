@@ -13,7 +13,7 @@ const MapDisplay = dynamic(() => import("../components/mapDisplay"), { ssr: fals
 
 export default function Page() {
     const [selectedCity, setSelectedCity] = useState<{ name: string; lat: number; lon: number } | null>(null);
-    const [clue] = useState('');
+    const [clue, setClue] = useState<string>('');
 
 
     // const handleSceneClick = () => {
@@ -51,12 +51,6 @@ export default function Page() {
                 <h3 className="text-2xl font-semibold">Clue</h3>
                 <p className="text-lg font-mono">{clue || 'Click on a street to investigate and find clues.'}</p>
             </div>
-            {/*<button*/}
-            {/*    onClick={restartGame}*/}
-            {/*    className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700"*/}
-            {/*>*/}
-            {/*    Restart Game*/}
-            {/*</button>*/}
         </div>
     );
 }

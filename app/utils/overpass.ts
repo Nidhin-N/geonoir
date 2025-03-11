@@ -1,5 +1,5 @@
 // Function to fetch a random major city from OpenStreetMap
-export const getCity = async (forceNew = false) => {
+export const getCity = async () => {
 
 
     // const cacheKey = "cachedCity";
@@ -39,51 +39,49 @@ export const getCity = async (forceNew = false) => {
 };
 
 // Function to fetch streets for the selected city
-export const getStreets = async (cityLat: number, cityLon: number, forceNew = false) => {
-    const cacheKey = `streets_${cityLat}_${cityLon}`;
-    const cachedData = localStorage.getItem(cacheKey);
+export const getLocations = async (cityLat: number, cityLon: number) => {
 
-    // if (cachedData && !forceNew) {
-    //     console.log("Using cached streets data.");
-    //     return JSON.parse(cachedData);
-    // }
 
     const overpassQuery = `
     [out:json];
-    way
-      ["highway"~"^(trunk|primary|secondary|tertiary)$"]
-      (around:500, ${cityLat}, ${cityLon});
+    (
+        way["leisure"="park"](around:1000, ${cityLat}, ${cityLon});
+        way["tourism"="attraction"](around:1000, ${cityLat}, ${cityLon});
+        way["building"~"monument|public|church|cathedral|museum|castle|government|tower|theatre|university"](around:1000, ${cityLat}, ${cityLon});
+    );
     out geom;
   `;
 
     const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
 
-    console.log("Fetching streets from Overpass...");
+    console.log("Fetching locations from Overpass...");
     const response = await fetch(url);
     const data = await response.json();
 
     if (data.elements.length > 0) {
-        let streets = data.elements.map((way: any) => ({
-            name: way.tags?.name || "Unnamed Street",
-            coordinates: way.geometry.map((point: any) => [point.lat, point.lon]),
+        let locations = data.elements
+            .filter((way: any) => way.geometry && way.tags?.name)
+            .map((way: any) => ({
+                name: way.tags.name,
+                coordinates: way.geometry.map((point: any) => [point.lat, point.lon]),
         }));
 
-        if (streets.length >= 6) {
-            streets = streets.sort(() => Math.random() - 0.5).slice(0, 6);
+        if (locations.length >= 6) {
+            locations = locations.sort(() => Math.random() - 0.5).slice(0, 6);
 
-            const clues = streets.slice(0, 5); // Middle streets hold clues
-            const finalLoc = streets[5];
+            const clues = locations.slice(0, 5); // Middle streets hold clues
+            const finalLoc = locations[5];
 
-            const gameData = {clues, finalLoc, allStreets: streets };
-            // localStorage.setItem(cacheKey, JSON.stringify(gameData));
-            return gameData;
+            // Store bounds for use in the map
+            return {clues, finalLoc, allLocations: locations};
+
         } else {
-            console.warn("Not enough streets found.");
+            console.warn("Not enough locations found.");
             return null;
         }
 
     } else {
-        console.warn("No streets found.");
-        return [];
+        console.warn("No locations found.");
+        return null;
     }
 };
