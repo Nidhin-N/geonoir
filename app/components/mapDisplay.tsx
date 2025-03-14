@@ -15,9 +15,10 @@ import {getLocations } from "../utils/overpass";
 // }
 
 
-export default function MapDisplay({ city, setClue}: {
+export default function MapDisplay({ city, setClue, setLoaded}: {
         city: { lat: number; lon: number }
         setClue: (clue: string) => void;
+        setLoaded: (loaded: boolean) => void;
     }) {
     const [gameData, setGameData] = useState<{clues: any; allLocations: any } | null>(null);
     const [clueIndex, setClueIndex] = useState(0);
@@ -30,6 +31,7 @@ export default function MapDisplay({ city, setClue}: {
                 if (data){
                     setGameData(data);
                     setClue(`Find ${data.clues[0].name}`);
+                    setLoaded(true);
                 }
             }
         }
@@ -77,7 +79,7 @@ export default function MapDisplay({ city, setClue}: {
                               zoom={18}
                               minZoom={15}
                               // maxBounds={bounds}
-                              style={{height: "500px", width: "100%"}}
+                              style={{height: "650px", width: "100%"}}
                 >
                     {/* TileLayer to display the map using OpenStreetMap tiles */}
                     <LayersControl position="topright">
@@ -101,7 +103,7 @@ export default function MapDisplay({ city, setClue}: {
                                 attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
                             />
                         </LayersControl.BaseLayer>
-                        <LayersControl.BaseLayer checked name="Noir-dark">
+                        <LayersControl.BaseLayer name="Noir-dark">
                             <TileLayer
                                 url="https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=2TN78o146tjxRyqb9a15TyqJd9Ovny8ppJglRXXgFzqAe42EkD8wXOyNi5EOeTbk"
                                 attribution='<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -110,7 +112,7 @@ export default function MapDisplay({ city, setClue}: {
                     </LayersControl>
                     <Circle
                         center={gameData.clues[clueIndex].coordinates[0]}
-                        radius={50}
+                        radius={100}
                         color="blue"
                         fillColor="blue"
                         fillOpacity={0.3}
