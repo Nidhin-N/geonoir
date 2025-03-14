@@ -1,5 +1,4 @@
 'use client';
-// import {MapContainer, TileLayer, Marker, Popup, LayersControl, Polygon, useMap} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'; // Import Leaflet's CSS
 import {useEffect, useState} from 'react';
 import CitySelector from "../components/citySelector";
@@ -45,11 +44,12 @@ export default function Page() {
         <div className="relative min-h-screen w-full">
             <div className="relative min-h-screen bg-black text-white">
                 <CitySelector onCitySelected={setSelectedCity}/>
-                {selectedCity && <MapDisplay city={selectedCity}/>}
+                {selectedCity && <MapDisplay city={selectedCity} setClue={setClue}/>}
             </div>
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 w-[90%] max-w-3xl p-6 border border-gray-700 rounded-xl">
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 w-[90%] max-w-3xl p-6 border border-gray-700 rounded-xl
+                text-center break-words truncate">
                 <h3 className="text-2xl font-semibold">Clue</h3>
-                <p className="text-lg font-mono">{clue || 'Click on a street to investigate and find clues.'}</p>
+                <p className="text-lg font-mono">{clue}</p>
             </div>
         </div>
     );

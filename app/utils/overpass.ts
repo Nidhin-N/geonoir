@@ -69,11 +69,10 @@ export const getLocations = async (cityLat: number, cityLon: number) => {
         if (locations.length >= 6) {
             locations = locations.sort(() => Math.random() - 0.5).slice(0, 6);
 
-            const clues = locations.slice(0, 5); // Middle streets hold clues
-            const finalLoc = locations[5];
+            const clues = locations.slice(0, 6); // Middle streets hold clues
 
             // Store bounds for use in the map
-            return {clues, finalLoc, allLocations: locations};
+            return {clues, allLocations: locations};
 
         } else {
             console.warn("Not enough locations found.");
