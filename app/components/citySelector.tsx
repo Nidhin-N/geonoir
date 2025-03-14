@@ -19,7 +19,7 @@ export default function CitySelector({ onCitySelected }: { onCitySelected: (city
     }, []);
 
     if (error) return <p className="text-red-500">Error fetching city. Please refresh.</p>;
-    if (!currentCity) return <p>Loading random city...</p>;
+    if (!currentCity) return <p className="text-white text-center text-2xl p-4">Loading random city...</p>;
 
     return (
         <h2 className="text-white text-center text-2xl p-4">
