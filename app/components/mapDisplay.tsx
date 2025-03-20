@@ -2,18 +2,6 @@ import { useState, useEffect } from "react";
 import {MapContainer, TileLayer, LayersControl, Polygon, Circle} from "react-leaflet";
 import {getLocations } from "../utils/overpass";
 
-// function calculateBounds(centerLat: number, centerLon: number, radius: number): LatLngBoundsExpression {
-//     // Convert meters to degrees
-//     const latOffset = (radius / 6378200) * (180 / Math.PI); //Earth radius in meters
-//     const lonOffset = latOffset / Math.cos(centerLat * (Math.PI / 180));
-//
-//     // Create bounding box
-//     return L.latLngBounds(
-//         [centerLat - latOffset, centerLon - lonOffset], // Southwest
-//         [centerLat + latOffset, centerLon + lonOffset]  // Northeast
-//     );
-// }
-
 
 export default function MapDisplay({ city, setClue, setLoaded}: {
         city: { lat: number; lon: number }
@@ -22,6 +10,7 @@ export default function MapDisplay({ city, setClue, setLoaded}: {
     }) {
     const [gameData, setGameData] = useState<{clues: any; allLocations: any } | null>(null);
     const [clueIndex, setClueIndex] = useState(0);
+    const [difficulty, setDifficulty] = useState("easy");
 
 
     useEffect(() => {
@@ -37,6 +26,13 @@ export default function MapDisplay({ city, setClue, setLoaded}: {
         }
         loadStreets();
     }, [city]);
+
+    useEffect(() => {
+        const playerDifficulty = localStorage.getItem("difficulty");
+        if (playerDifficulty) {
+            setDifficulty(playerDifficulty);
+        }
+    }, []);
 
 
     if (!city || !gameData) {
@@ -83,7 +79,7 @@ export default function MapDisplay({ city, setClue, setLoaded}: {
                 >
                     {/* TileLayer to display the map using OpenStreetMap tiles */}
                     <LayersControl position="topright">
-                        <LayersControl.BaseLayer checked name="Standard Map">
+                        <LayersControl.BaseLayer name="Standard Map">
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -103,20 +99,30 @@ export default function MapDisplay({ city, setClue, setLoaded}: {
                                 attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
                             />
                         </LayersControl.BaseLayer>
-                        <LayersControl.BaseLayer name="Noir-dark">
+                        <LayersControl.BaseLayer checked name="Noir-dark">
                             <TileLayer
                                 url="https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=2TN78o146tjxRyqb9a15TyqJd9Ovny8ppJglRXXgFzqAe42EkD8wXOyNi5EOeTbk"
                                 attribution='<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             />
                         </LayersControl.BaseLayer>
                     </LayersControl>
+                    {difficulty !== "hard" && (
                     <Circle
                         center={gameData.clues[clueIndex].coordinates[0]}
-                        radius={100}
+                        radius={175}
                         color="blue"
                         fillColor="blue"
                         fillOpacity={0.3}
                     />
+                    )}
+                    {difficulty === "hard" && (
+                        <Circle
+                            center={gameData.clues[clueIndex].coordinates[0]}
+                            radius={1000}
+                            color="blue"
+                            fillColor="transparent"
+                        />
+                    )}
                     <Polygon
                         positions={gameData.clues[clueIndex].coordinates}
                         color="transparent"
