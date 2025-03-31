@@ -9,7 +9,7 @@ GeoNoir is a browser-based detective game that uses real-world geospatial data f
 ## Installation
 
 ```bash
-git clone https://github.com/Nidhin-N/geonoir.git
+git clone https://github.com/Nidhin-N/geonoir.git #if cloning from git if not skip to npm install
 cd geonoir
 npm install
 npm run dev #for development mode
